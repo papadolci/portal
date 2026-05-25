@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KOICHAN PORTAL</title>
+<style>
+:root { color-scheme: light; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Segoe UI", sans-serif;
+  background: #f5f5f5;
+  color: #1a1a1a;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+
+/* ── Nav ── */
+.nav {
+  background: #fff;
+  border-bottom: 1px solid #eee;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.nav-logo {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #111;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.nav-star { color: #f5c800; }
+.nav-links { display: flex; gap: 20px; }
+.nav-link {
+  font-size: 12px;
+  color: #bbb;
+  font-weight: 600;
+  cursor: pointer;
+  padding-bottom: 2px;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s;
+}
+.nav-link.active { color: #111; border-bottom-color: #e05580; }
+.nav-link:hover { color: #888; }
+
+/* ── Pages ── */
+.page { display: none; flex: 1; flex-direction: column; }
+.page.active { display: flex; }
+
+/* ── Hero ── */
+.hero {
+  background: #fff;
+  padding: 28px 24px 24px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 130px;
+}
+.hero-left { display: flex; flex-direction: column; justify-content: center; }
+.hero-greeting {
+  font-size: 11px;
+  font-weight: 700;
+  color: #e05580;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.hero-title { font-size: 22px; font-weight: 800; color: #111; margin-bottom: 5px; }
+.hero-sub { font-size: 12px; color: #aaa; }
+.hero-date { display: flex; flex-direction: column; align-items: flex-end; justify-content: center; flex-shrink: 0; }
+.date-day {
+  font-size: 80px;
+  font-weight: 800;
+  color: #fce4ec;
+  line-height: 1;
+  letter-spacing: -3px;
+}
+.date-month {
+  font-size: 11px;
+  font-weight: 700;
+  color: #ddd;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-align: right;
+  margin-top: 2px;
+}
+
+/* ── Home tiles ── */
+.home-section { padding: 20px 24px; }
+.cat-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #bbb;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 10px; }
+.grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.tile {
+  background: #fff;
+  border-radius: 14px;
+  padding: 16px 14px;
+  cursor: pointer;
+  border: 1px solid #eee;
+  transition: all 0.15s;
+}
+.tile:hover { border-color: #e05580; box-shadow: 0 4px 12px rgba(224,85,128,0.08); transform: translateY(-1px); }
+.tile:active { transform: scale(0.98); }
+.tile-icon { font-size: 22px; margin-bottom: 10px; }
+.tile-title { font-size: 13px; font-weight: 700; color: #111; margin-bottom: 4px; line-height: 1.3; }
+.tile-sub { font-size: 10px; color: #bbb; font-weight: 500; }
+
+.wide-tile {
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px 18px;
+  border: 1px solid #eee;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.wide-tile:hover { border-color: #e05580; }
+.wide-tile:active { transform: scale(0.98); }
+.wide-tile-icon { font-size: 20px; flex-shrink: 0; }
+.wide-tile-title { font-size: 13px; font-weight: 700; color: #111; margin-bottom: 2px; }
+.wide-tile-sub { font-size: 10px; color: #bbb; font-weight: 500; }
+.tile-copied { font-size: 10px; color: #16a34a; font-weight: 700; display: none; margin-left: auto; }
+
+/* ── Flow view ── */
+.flow-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+}
+.dots {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  padding: 0 0 10px;
+  flex-shrink: 0;
+}
+.dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #ddd;
+  transition: all 0.3s ease;
+}
+.dot.active { background: #e05580; transform: scale(1.2); }
+.dot.done   { background: #f7a8c0; }
+
+.viewport {
+  position: relative;
+  overflow: visible;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+  min-height: 420px;
+}
+.flow-nav {
+  width: 100%;
+  max-width: 572px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0 0;
+}
+.flow-step { font-size: 11px; color: #bbb; }
+.back-btn {
+  display: flex; align-items: center; gap: 5px;
+  background: none; border: none;
+  font-size: 13px; color: #f7a8c0;
+  cursor: pointer; padding: 6px 0;
+  transition: color 0.15s;
+}
+.back-btn:hover { color: #e05580; }
+.back-btn:disabled { opacity: 0; pointer-events: none; }
+
+/* ── Card ── */
+.card {
+  width: 100%;
+  max-width: 540px;
+  position: absolute;
+  transition: transform 0.35s cubic-bezier(.4,0,.2,1), opacity 0.3s ease;
+}
+.card.enter-right { transform: translateX(110%); opacity: 0; }
+.card.enter-left  { transform: translateX(-110%); opacity: 0; }
+.card.active      { transform: translateX(0); opacity: 1; }
+.card.exit-left   { transform: translateX(-110%); opacity: 0; }
+.card.exit-right  { transform: translateX(110%); opacity: 0; }
+
+.card-inner {
+  background: #fff;
+  border-radius: 20px;
+  padding: 28px 24px 24px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04);
+}
+.card-emoji { font-size: 32px; margin-bottom: 12px; text-align: center; }
+.card-q {
+  font-size: 20px; font-weight: 700; line-height: 1.4;
+  color: #1a1a1a; text-align: center; margin-bottom: 8px;
+}
+.card-sub {
+  font-size: 13px; color: #999; text-align: center;
+  margin-bottom: 22px; line-height: 1.5;
+}
+.choices { display: flex; flex-direction: column; gap: 10px; }
+.choice-btn {
+  display: flex; align-items: center; gap: 12px;
+  background: #f9f9f9; border: 1.5px solid #eee;
+  border-radius: 13px; padding: 14px 16px;
+  font-size: 14px; font-weight: 600; color: #1a1a1a;
+  cursor: pointer; transition: all 0.15s ease; text-align: left;
+}
+.choice-btn:hover { background: #fff0f5; border-color: #e05580; color: #e05580; transform: translateX(3px); }
+.choice-btn:active { transform: scale(0.98); }
+.choice-icon { font-size: 20px; flex-shrink: 0; width: 28px; text-align: center; }
+
+.text-area {
+  width: 100%; border: 1.5px solid #eee;
+  border-radius: 12px; padding: 13px 15px;
+  font-size: 14px; font-family: inherit; color: #1a1a1a;
+  background: #f9f9f9; resize: vertical; min-height: 90px;
+  outline: none; transition: border-color 0.15s; margin-bottom: 12px;
+}
+.text-area:focus { border-color: #e05580; background: #fff; }
+.continue-btn {
+  width: 100%; background: linear-gradient(135deg, #e05580, #f08090);
+  color: #fff; border: none; border-radius: 12px;
+  padding: 14px; font-size: 14px; font-weight: 700;
+  cursor: pointer; transition: opacity 0.15s;
+}
+.continue-btn:hover { opacity: 0.88; }
+.continue-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.skip-link {
+  display: block; text-align: center; margin-top: 10px;
+  font-size: 12px; color: #ccc; cursor: pointer; text-decoration: underline;
+}
+.skip-link:hover { color: #999; }
+
+/* ── Confirm ── */
+.confirm-label {
+  font-size: 11px; font-weight: 700; color: #e05580;
+  letter-spacing: 0.5px; margin-bottom: 8px; text-transform: uppercase;
+}
+.prompt-preview {
+  background: #f9f9f9; border: 1.5px solid #eee;
+  border-radius: 12px; padding: 14px; font-size: 12px;
+  line-height: 1.7; color: #555; white-space: pre-wrap;
+  word-break: break-word; max-height: 200px; overflow-y: auto; margin-bottom: 16px;
+}
+.send-btn {
+  width: 100%; background: linear-gradient(135deg, #e05580, #f08090);
+  color: #fff; border: none; border-radius: 13px; padding: 16px;
+  font-size: 15px; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin-bottom: 10px; transition: opacity 0.15s;
+}
+.send-btn:hover { opacity: 0.88; }
+.copy-btn-sm {
+  width: 100%; background: #fff; border: 1.5px solid #eee;
+  border-radius: 13px; padding: 13px; font-size: 13px;
+  font-weight: 600; color: #999; cursor: pointer; transition: all 0.15s;
+}
+.copy-btn-sm:hover { border-color: #e05580; color: #e05580; }
+.restart-link {
+  display: block; text-align: center; margin-top: 14px;
+  font-size: 12px; color: #ccc; cursor: pointer; text-decoration: underline;
+}
+.restart-link:hover { color: #999; }
+
+/* ── About page ── */
+.about-hero {
+  background: #fff;
+  padding: 32px 24px 24px;
+  border-bottom: 1px solid #eee;
+}
+.about-name { font-size: 24px; font-weight: 800; color: #111; margin-bottom: 4px; }
+.about-role { font-size: 13px; color: #e05580; font-weight: 600; margin-bottom: 16px; }
+.about-body { padding: 24px; }
+.about-section { margin-bottom: 24px; }
+.about-section-title {
+  font-size: 10px; font-weight: 700; color: #bbb;
+  letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 10px;
+}
+.about-card {
+  background: #fff; border-radius: 14px; padding: 16px 18px; border: 1px solid #eee;
+}
+.about-card p { font-size: 13px; color: #444; line-height: 1.7; margin-bottom: 6px; }
+.about-card p:last-child { margin-bottom: 0; }
+.about-tag {
+  display: inline-block; background: #fff0f5; color: #e05580;
+  font-size: 11px; font-weight: 700; padding: 3px 10px;
+  border-radius: 999px; margin: 3px 3px 0 0;
+}
+
+/* ── Vision page ── */
+.vision-hero {
+  background: #fff;
+  padding: 32px 24px 24px;
+  border-bottom: 1px solid #eee;
+  position: relative;
+  overflow: hidden;
+}
+.vision-countdown { position: absolute; top: 0; right: 24px; bottom: 0; display: flex; flex-direction: column; align-items: flex-end; justify-content: center; }
+.countdown-num { font-size: 80px; font-weight: 800; color: #fce4ec; line-height: 1; letter-spacing: -3px; }
+.countdown-label { font-size: 11px; font-weight: 700; color: #ddd; letter-spacing: 2px; text-transform: uppercase; text-align: right; margin-top: 2px; }
+.vision-line { width: 32px; height: 2px; background: #e05580; margin-bottom: 10px; }
+.vision-title { font-size: 28px; font-weight: 800; color: #111; letter-spacing: -0.5px; line-height: 1.1; margin-bottom: 8px; }
+.vision-title span { color: #e05580; }
+.vision-sub { font-size: 11px; color: #aaa; letter-spacing: 0.5px; }
+.vision-body { padding: 24px; }
+.vision-card {
+  background: #fff; border-radius: 14px; padding: 18px;
+  border: 1px solid #eee; margin-bottom: 12px;
+}
+.vision-card-label { font-size: 10px; font-weight: 700; color: #e05580; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+.vision-card-text { font-size: 13px; color: #333; line-height: 1.7; }
+.vision-milestone {
+  background: #fff; border-radius: 14px; border: 1px solid #eee; overflow: hidden; margin-bottom: 12px;
+}
+.milestone-header { padding: 10px 18px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #eee; }
+.milestone-year { font-size: 11px; font-weight: 700; color: #e05580; }
+.milestone-phase { font-size: 13px; font-weight: 700; color: #111; }
+.milestone-body { padding: 12px 18px; font-size: 13px; color: #444; line-height: 1.7; }
+
+/* ── Bottom bar ── */
+.bottom-bar {
+  background: #fff;
+  border-top: 1px solid #eee;
+  padding: 14px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+.bottom-btn {
+  background: #e05580; color: #fff; border: none;
+  border-radius: 8px; padding: 8px 14px;
+  font-size: 11px; font-weight: 700; cursor: pointer;
+  transition: opacity 0.15s;
+}
+.bottom-btn:hover { opacity: 0.88; }
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <div class="nav-logo"><span class="nav-star">✦</span> KOICHAN PORTAL</div>
+  <div class="nav-links">
+    <div class="nav-link active" onclick="showPage('home', this)">Home</div>
+    <div class="nav-link" onclick="showPage('about', this)">About</div>
+    <div class="nav-link" onclick="showPage('vision', this)">Vision</div>
+  </div>
+</div>
+
+<!-- ════════════════ HOME PAGE ════════════════ -->
+<div class="page active" id="page-home">
+
+  <div class="hero">
+    <div class="hero-left">
+      <div class="hero-greeting" id="greeting"></div>
+      <div class="hero-title">今日は何をつくる？</div>
+      <div class="hero-sub">依頼したいカテゴリを選んでください</div>
+    </div>
+    <div class="hero-date">
+      <div class="date-day" id="dateDay"></div>
+      <div class="date-month" id="dateMonth"></div>
+    </div>
+  </div>
+
+  <!-- 質問フロー -->
+  <div id="flow-section" style="display:none; flex:1;">
+    <div class="flow-wrap">
+      <div class="dots" id="dots"></div>
+      <div class="viewport" id="viewport"></div>
+      <div class="flow-nav">
+        <button class="back-btn" id="backBtn" onclick="goBack()" disabled>← 戻る</button>
+        <span class="flow-step" id="stepLabel"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- タイルグリッド -->
+  <div id="tile-section">
+    <div class="home-section">
+      <div class="cat-label">制作</div>
+      <div class="grid3">
+        <div class="tile" onclick="startFlow('shooting')">
+          <div class="tile-icon">📸</div>
+          <div class="tile-title">撮影指示書</div>
+          <div class="tile-sub">撮影前に</div>
+        </div>
+        <div class="tile" onclick="startFlow('kikaku')">
+          <div class="tile-icon">📋</div>
+          <div class="tile-title">企画書・提案資料</div>
+          <div class="tile-sub">プレゼン前に</div>
+        </div>
+        <div class="tile" onclick="startFlow('mail')">
+          <div class="tile-icon">✉️</div>
+          <div class="tile-title">メール文</div>
+          <div class="tile-sub">メール作成時に</div>
+        </div>
+      </div>
+      <div class="grid3">
+        <div class="tile" onclick="startFlow('sns')">
+          <div class="tile-icon">🍰</div>
+          <div class="tile-title">SNS投稿文</div>
+          <div class="tile-sub">投稿前に</div>
+        </div>
+        <div class="tile" onclick="startFlow('idea')">
+          <div class="tile-icon">🎨</div>
+          <div class="tile-title">ネタ出し</div>
+          <div class="tile-sub">アイデアが欲しい時</div>
+        </div>
+        <div class="tile" onclick="startFlow('research')">
+          <div class="tile-icon">🔍</div>
+          <div class="tile-title">リサーチ</div>
+          <div class="tile-sub">調べたい時に</div>
+        </div>
+      </div>
+
+      <div style="height:16px"></div>
+      <div class="cat-label">指示</div>
+      <div class="grid2">
+        <div class="wide-tile" onclick="copyStart(this)">
+          <div class="wide-tile-icon">🍰</div>
+          <div style="flex:1">
+            <div class="wide-tile-title">自己紹介を読んで</div>
+            <div class="wide-tile-sub">新チャット開始時</div>
+          </div>
+          <span class="tile-copied" id="copiedMsg">コピー済み ✓</span>
+          <span id="copyIcon">📋</span>
+        </div>
+        <div class="wide-tile" onclick="copyCompact(this)">
+          <div class="wide-tile-icon">🗜️</div>
+          <div style="flex:1">
+            <div class="wide-tile-title">会話を圧縮して</div>
+            <div class="wide-tile-sub">会話が長くなったら</div>
+          </div>
+          <span class="tile-copied" id="compactedMsg">コピー済み ✓</span>
+          <span id="compactIcon">📋</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <div class="nav-logo"><span class="nav-star">✦</span> KOICHAN PORTAL</div>
+    <button class="bottom-btn" onclick="showPage('about', document.querySelectorAll('.nav-link')[1])">About me →</button>
+  </div>
+</div>
+
+<!-- ════════════════ ABOUT PAGE ════════════════ -->
+<div class="page" id="page-about">
+  <div class="about-hero">
+    <div class="about-name">KOIZUMI KENTARO</div>
+    <div class="about-role">Creative Director / Illustrator</div>
+    <div>
+      <span class="about-tag">メズム東京</span>
+      <span class="about-tag">パパドルチ</span>
+      <span class="about-tag">お台場在住</span>
+      <span class="about-tag">イタリア好き</span>
+    </div>
+  </div>
+  <div class="about-body">
+    <div class="about-section">
+      <div class="about-section-title">本業</div>
+      <div class="about-card">
+        <p>メズム東京（竹芝）のクリエイティブディレクター。CD歴7年目。年間6本以上のイベントを担当し、カルチャー・食・体験型イベントを中心に企画・演出を手がける。</p>
+        <p>ブランドトーン：<strong>アート・感性・エッジ</strong>。経営陣へのプレゼンは「収益性・話題性・ブランド価値」を軸に構成。</p>
+      </div>
+    </div>
+    <div class="about-section">
+      <div class="about-section-title">副業 / 夢</div>
+      <div class="about-card">
+        <p><strong>パパドルチ（Papa Dolci）</strong> — イタリアのケーキ屋世界観のイラストブランド。ゆるかわ・キャラクター系スタイルでProcreateを使って制作。</p>
+        <p>Instagram @papadolci（約560人）。デザフェス・クリエイターズマーケットにも出展。将来はイラストとケーキ屋を同一ブランドで展開予定。</p>
+      </div>
+    </div>
+    <div class="about-section">
+      <div class="about-section-title">Claudeの使い方</div>
+      <div class="about-card">
+        <p>企画書・撮影指示書などの資料作成を最速化するために使用。合理的・根拠あり・こいちゃんの利益を思ったアドバイスを求めている。</p>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-bar">
+    <div class="nav-logo"><span class="nav-star">✦</span> KOICHAN PORTAL</div>
+    <button class="bottom-btn" onclick="showPage('vision', document.querySelectorAll('.nav-link')[2])">Vision →</button>
+  </div>
+</div>
+
+<!-- ════════════════ VISION PAGE ════════════════ -->
+<div class="page" id="page-vision">
+  <div class="vision-hero">
+    <div class="vision-countdown">
+      <div class="countdown-num" id="countdownDays"></div>
+      <div class="countdown-label">days to 40</div>
+    </div>
+    <div class="vision-line"></div>
+    <div class="vision-title">40<span>'s</span> Vision</div>
+    <div class="vision-sub">2026.05 — KOIZUMI KENTARO</div>
+  </div>
+  <div class="vision-body">
+    <div class="about-section-title">ビジョン</div>
+    <div class="vision-card">
+      <div class="vision-card-label">場所・環境</div>
+      <div class="vision-card-text">海の見えるスタジオ兼自宅（お台場 or イタリア）。朝はコーヒーを飲みながら外の景色をゆっくり眺める時間がある。</div>
+    </div>
+    <div class="vision-card">
+      <div class="vision-card-label">仕事・収入</div>
+      <div class="vision-card-text">会社員は卒業。イラスト・グッズ・パパドルチ店舗売上の3本柱で<strong>年収2000万円</strong>。組織に縛られず自分のペースで動く。</div>
+    </div>
+    <div class="vision-card">
+      <div class="vision-card-label">最高の瞬間</div>
+      <div class="vision-card-text">自分のイラストや商品を介して、目の前の人が喜んでいる。その喜びが直接収入にもなっている。</div>
+    </div>
+
+    <div style="height:8px"></div>
+    <div class="about-section-title">ロードマップ</div>
+
+    <div class="vision-milestone">
+      <div class="milestone-header">
+        <span class="milestone-year">35→36歳</span>
+        <span class="milestone-phase">土台を作る</span>
+      </div>
+      <div class="milestone-body">オンラインショップ開設 / コミッション受注の仕組み化 / Instagram投稿の継続ルール確立。目標：月5〜10万の収入。</div>
+    </div>
+    <div class="vision-milestone">
+      <div class="milestone-header">
+        <span class="milestone-year">37→38歳</span>
+        <span class="milestone-phase">副業収入を本物にする</span>
+      </div>
+      <div class="milestone-body">フォロワー1万超え / 月30〜50万の収入軸確立 / 店舗の資金計画・物件調査開始。</div>
+    </div>
+    <div class="vision-milestone">
+      <div class="milestone-header">
+        <span class="milestone-year">38→39歳</span>
+        <span class="milestone-phase">会社を出るタイミングを決める</span>
+      </div>
+      <div class="milestone-body">副業収入が生活費を超えたら退職を判断。ポップアップ出店でリアル販売の手応えを掴む。</div>
+    </div>
+    <div class="vision-milestone">
+      <div class="milestone-header">
+        <span class="milestone-year">39→40歳</span>
+        <span class="milestone-phase">3本柱を回す</span>
+      </div>
+      <div class="milestone-body">イラスト・グッズ・店舗が全部稼働。まず「会社なしで飯が食える状態」を実現する。</div>
+    </div>
+  </div>
+  <div class="bottom-bar">
+    <div class="nav-logo"><span class="nav-star">✦</span> KOICHAN PORTAL</div>
+    <button class="bottom-btn" onclick="showPage('home', document.querySelectorAll('.nav-link')[0])">Home →</button>
+  </div>
+</div>
+
+<script>
+// ── Page navigation ──
+function showPage(name, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  if (el) el.classList.add('active');
+}
+
+// ── Countdown to 40 ──
+const birthday40 = new Date(2031, 11, 20); // 1991年12月20日生まれ → 40歳 = 2031年12月20日
+const today = new Date(); today.setHours(0,0,0,0);
+const daysLeft = Math.ceil((birthday40 - today) / (1000 * 60 * 60 * 24));
+document.getElementById('countdownDays').textContent = daysLeft.toLocaleString();
+
+// ── Greeting & date ──
+const now = new Date();
+const h = now.getHours();
+document.getElementById('greeting').textContent =
+  h >= 5 && h < 11 ? 'Good Morning' :
+  h >= 11 && h < 18 ? 'Good Afternoon' : 'Good Evening';
+document.getElementById('dateDay').textContent = now.getDate();
+const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+document.getElementById('dateMonth').textContent = months[now.getMonth()] + ' ' + now.getFullYear();
+
+// ── Copy buttons ──
+function copyStart() {
+  navigator.clipboard.writeText('settings/about_me.md を読んで').then(() => {
+    document.getElementById('copiedMsg').style.display = 'inline';
+    document.getElementById('copyIcon').style.display = 'none';
+    setTimeout(() => {
+      document.getElementById('copiedMsg').style.display = 'none';
+      document.getElementById('copyIcon').style.display = 'inline';
+    }, 2000);
+  });
+}
+function copyCompact() {
+  navigator.clipboard.writeText('これまでの会話を要点だけ残して簡潔に圧縮して。重要な決定・ファイルパス・未完了のタスクだけ残してOK。').then(() => {
+    document.getElementById('compactedMsg').style.display = 'inline';
+    document.getElementById('compactIcon').style.display = 'none';
+    setTimeout(() => {
+      document.getElementById('compactedMsg').style.display = 'none';
+      document.getElementById('compactIcon').style.display = 'inline';
+    }, 2000);
+  });
+}
+
+// ════════════════════════════════════════════
+// QUESTION TREE
+// ════════════════════════════════════════════
+const Q = {
+  work_type: {
+    emoji: "📄", q: "どんな資料を作る？", type: "choice",
+    choices: [
+      { icon:"📊", label:"企画書・提案",         val:"kikaku",   next:"work_audience" },
+      { icon:"📸", label:"撮影指示書",           val:"shooting", next:"work_audience" },
+      { icon:"🎪", label:"イベント設計・演出案",  val:"event",    next:"work_audience" },
+      { icon:"📑", label:"その他プレゼン",        val:"other",    next:"work_audience" },
+    ]
+  },
+  work_audience: {
+    emoji: "👥", q: "誰に見せる資料？", type: "choice",
+    choices: [
+      { icon:"👔", label:"経営陣・支配人",               val:"exec",     next:"work_size" },
+      { icon:"📷", label:"外部スタッフ（カメラマン等）", val:"external", next:"work_size" },
+      { icon:"🤝", label:"外部パートナー・取引先",        val:"partner",  next:"work_size" },
+      { icon:"💼", label:"社内チーム",                    val:"team",     next:"work_size" },
+    ]
+  },
+  work_size: {
+    emoji: "📐", q: "出力サイズは？", type: "choice",
+    choices: [
+      { icon:"📄", label:"A4縦",                  val:"A4縦",       next:"work_pages" },
+      { icon:"🖥️", label:"A4横",                  val:"A4横",       next:"work_pages" },
+      { icon:"🎬", label:"16:9ワイド（デジタル）", val:"16:9ワイド", next:"work_pages" },
+      { icon:"✏️", label:"その他（記述）",          val:"__other__",  next:"work_size_text" },
+    ]
+  },
+  work_size_text: {
+    emoji: "📐", q: "サイズを教えて", type: "text", storeAs: "work_size",
+    ph: "例：B5横 / 正方形 1080×1080px", next: "work_pages"
+  },
+  work_pages: {
+    emoji: "📑", q: "スライド枚数は？", type: "choice",
+    choices: [
+      { icon:"1️⃣", label:"1枚",    val:"1枚",    next:"work_emphasis" },
+      { icon:"2️⃣", label:"2枚",    val:"2枚",    next:"work_emphasis" },
+      { icon:"3️⃣", label:"3枚以上", val:"3枚以上", next:"work_emphasis" },
+      { icon:"🔓", label:"指定なし", val:"指定なし", next:"work_emphasis" },
+    ]
+  },
+  work_emphasis: {
+    emoji: "⭐", q: "何を一番伝えたい？", type: "choice",
+    choices: [
+      { icon:"💰", label:"収益性・売上への貢献", val:"収益性・売上への貢献", next:"work_theme" },
+      { icon:"✨", label:"ブランド価値・世界観", val:"ブランド価値・世界観", next:"work_theme" },
+      { icon:"📣", label:"話題性・SNS映え",      val:"話題性・SNS映え",      next:"work_theme" },
+      { icon:"✏️", label:"その他（記述）",         val:"__other__",             next:"work_emphasis_text" },
+    ]
+  },
+  work_emphasis_text: {
+    emoji: "⭐", q: "強調したいポイントは？", type: "text", storeAs: "work_emphasis",
+    ph: "例：30〜50代富裕層への訴求・南仏の世界観", next: "work_theme"
+  },
+  work_theme: {
+    emoji: "📝", q: "テーマ・件名を教えて",
+    sub: "例：夏のランチブッフェ撮影 / 秋の新イベント企画",
+    type: "text", ph: "ここに入力...", next: "confirm"
+  },
+
+  papa_type: {
+    emoji: "🎨", q: "パパドルチで何をする？", type: "choice",
+    choices: [
+      { icon:"📱", label:"Instagram投稿文を作る",       val:"ig",       next:"papa_season" },
+      { icon:"🎙️", label:"Podcastの台本・ネタ",          val:"podcast",  next:"papa_season" },
+      { icon:"📈", label:"フォロワー増加の戦略を立てる", val:"strategy", next:"papa_season" },
+      { icon:"💡", label:"イラストのアイデアを出す",      val:"idea",     next:"papa_season" },
+    ]
+  },
+  papa_season: {
+    emoji: "📅", q: "いつ向けのコンテンツ？", type: "choice",
+    choices: [
+      { icon:"🌸", label:"今のシーズン（旬ネタ）",     val:"今のシーズン", next:"papa_theme" },
+      { icon:"🌟", label:"常緑ネタ（いつでも使える）", val:"常緑ネタ",     next:"papa_theme" },
+      { icon:"🎉", label:"イベント・記念日に合わせて", val:"__other__",    next:"papa_season_text" },
+    ]
+  },
+  papa_season_text: {
+    emoji: "📅", q: "どんなイベント・タイミング？", type: "text", storeAs: "papa_season",
+    ph: "例：バレンタイン / クリスマス前 / 開業記念日", next: "papa_theme"
+  },
+  papa_theme: {
+    emoji: "✏️", q: "テーマのカテゴリは？", type: "choice",
+    choices: [
+      { icon:"🎨", label:"新作イラスト紹介",     val:"新作イラスト紹介",    next:"papa_count" },
+      { icon:"🎂", label:"スイーツ・ケーキ紹介", val:"スイーツ・ケーキ紹介", next:"papa_count" },
+      { icon:"☕", label:"カフェ・日常ライフ",    val:"カフェ・日常ライフ",  next:"papa_count" },
+      { icon:"✏️", label:"その他（記述）",         val:"__other__",           next:"papa_theme_text" },
+    ]
+  },
+  papa_theme_text: {
+    emoji: "✏️", q: "テーマ・内容を教えて", type: "text", storeAs: "papa_theme",
+    sub: "例：マリトッツォのPodcast回 / ケーキ屋の夢",
+    ph: "ここに入力...", next: "papa_count"
+  },
+  papa_count: {
+    emoji: "🔢", q: "何パターン出す？", type: "choice",
+    choices: [
+      { icon:"1️⃣", label:"1パターン", val:"1パターン", next:"papa_length" },
+      { icon:"2️⃣", label:"2パターン", val:"2パターン", next:"papa_length" },
+      { icon:"3️⃣", label:"3パターン", val:"3パターン", next:"papa_length" },
+      { icon:"🔓", label:"おまかせ",   val:"おまかせ",  next:"papa_length" },
+    ]
+  },
+  papa_length: {
+    emoji: "📏", q: "文字数の目安は？", type: "choice",
+    choices: [
+      { icon:"💬", label:"短め（140字以内）",  val:"140字以内", next:"confirm" },
+      { icon:"📝", label:"普通（200〜300字）", val:"200〜300字", next:"confirm" },
+      { icon:"📖", label:"制限なし",            val:"制限なし",  next:"confirm" },
+    ]
+  },
+
+  mail_to: {
+    emoji: "✉️", q: "誰に送るメール？", type: "choice",
+    choices: [
+      { icon:"👔", label:"ホテル上司・経営陣",      val:"boss",    next:"mail_purpose" },
+      { icon:"🤝", label:"外部パートナー・取引先",  val:"partner", next:"mail_purpose" },
+      { icon:"☕", label:"カジュアルな相手",         val:"casual",  next:"mail_purpose" },
+    ]
+  },
+  mail_purpose: {
+    emoji: "🎯", q: "このメールの目的は？", type: "choice",
+    choices: [
+      { icon:"📅", label:"日程調整",       val:"日程調整",   next:"mail_tone" },
+      { icon:"✅", label:"承認依頼",       val:"承認依頼",   next:"mail_tone" },
+      { icon:"📊", label:"進捗報告",       val:"進捗報告",   next:"mail_tone" },
+      { icon:"✏️", label:"その他（記述）", val:"__other__",  next:"mail_purpose_text" },
+    ]
+  },
+  mail_purpose_text: {
+    emoji: "🎯", q: "メールの目的を教えて", type: "text", storeAs: "mail_purpose",
+    ph: "例：企画の相談 / お礼 / 変更のお知らせ", next: "mail_tone"
+  },
+  mail_tone: {
+    emoji: "🎨", q: "メールのトーンは？", type: "choice",
+    choices: [
+      { icon:"👔", label:"フォーマル（役員・社外上位）", val:"フォーマル",   next:"mail_points" },
+      { icon:"💼", label:"ビジネス普通",                  val:"ビジネス普通", next:"mail_points" },
+      { icon:"☕", label:"カジュアル（親しい相手）",       val:"カジュアル",   next:"mail_points" },
+    ]
+  },
+  mail_points: {
+    emoji: "📋", q: "伝えたい要点を書いて", sub: "箇条書きでOK", type: "text",
+    ph: "例：\n・来週中に30分ほど時間ほしい\n・候補日は月水金の午後", next: "confirm"
+  },
+
+  research_cat: {
+    emoji: "📂", q: "調べるジャンルは？", type: "choice",
+    choices: [
+      { icon:"🏨", label:"競合・市場動向",     val:"競合・市場動向",     next:"research_use" },
+      { icon:"✨", label:"トレンド・成功事例",  val:"トレンド・成功事例", next:"research_use" },
+      { icon:"👤", label:"人物・ブランド調査",  val:"人物・ブランド調査", next:"research_use" },
+      { icon:"✏️", label:"その他（記述）",       val:"__other__",          next:"research_cat_text" },
+    ]
+  },
+  research_cat_text: {
+    emoji: "📂", q: "調べたいジャンルは？", type: "text", storeAs: "research_cat",
+    ph: "例：海外のケーキ屋のInstagram運用事例", next: "research_use"
+  },
+  research_use: {
+    emoji: "📌", q: "何に使う？", type: "choice",
+    choices: [
+      { icon:"📊", label:"企画・提案の根拠",      val:"企画・提案の根拠",      next:"research_depth" },
+      { icon:"📱", label:"SNS投稿のネタ",          val:"SNS投稿のネタ",          next:"research_depth" },
+      { icon:"📚", label:"自分の学習・インプット", val:"自分の学習・インプット", next:"research_depth" },
+      { icon:"✏️", label:"その他（記述）",           val:"__other__",              next:"research_use_text" },
+    ]
+  },
+  research_use_text: {
+    emoji: "📌", q: "何に使うか教えて", type: "text", storeAs: "research_use",
+    ph: "例：経営陣へのプレゼン根拠として", next: "research_depth"
+  },
+  research_depth: {
+    emoji: "🔭", q: "どのくらい深く調べる？", type: "choice",
+    choices: [
+      { icon:"👀", label:"ざっくり概要を知りたい", val:"ざっくり概要",      next:"research_theme" },
+      { icon:"🔍", label:"詳しく事例を集めたい",   val:"詳しく事例を収集", next:"research_theme" },
+      { icon:"📊", label:"数字・データ重視",         val:"数字・データ重視", next:"research_theme" },
+    ]
+  },
+  research_theme: {
+    emoji: "🔍", q: "具体的なテーマは？",
+    sub: "例：都内競合ホテルのナイトイベント事例",
+    type: "text", ph: "ここに入力...", next: "confirm"
+  },
+
+  confirm: { type: "confirm" }
+};
+
+// ── State ──
+let current = "work_type";
+let history = [];
+let answers = {};
+
+// ── Flow entry points ──
+function startFlow(type) {
+  history = [];
+  answers = {};
+  document.getElementById('tile-section').style.display = 'none';
+  document.getElementById('flow-section').style.display = 'block';
+
+  if (type === 'shooting') {
+    answers.start = 'work'; answers.work_type = 'shooting';
+    current = 'work_audience'; renderCard('work_audience', 'right');
+  } else if (type === 'kikaku') {
+    answers.start = 'work'; answers.work_type = 'kikaku';
+    current = 'work_audience'; renderCard('work_audience', 'right');
+  } else if (type === 'mail') {
+    answers.start = 'mail';
+    current = 'mail_to'; renderCard('mail_to', 'right');
+  } else if (type === 'sns') {
+    answers.start = 'papa'; answers.papa_type = 'ig';
+    current = 'papa_season'; renderCard('papa_season', 'right');
+  } else if (type === 'idea') {
+    answers.start = 'papa'; answers.papa_type = 'idea';
+    current = 'papa_season'; renderCard('papa_season', 'right');
+  } else if (type === 'research') {
+    answers.start = 'research';
+    current = 'research_cat'; renderCard('research_cat', 'right');
+  }
+}
+
+function showTiles() {
+  document.getElementById('flow-section').style.display = 'none';
+  document.getElementById('tile-section').style.display = 'block';
+  document.getElementById('viewport').innerHTML = '';
+}
+
+// ── Prompt builder ──
+function buildPrompt() {
+  const a = answers;
+  const base = "settings/about_me.md・settings/working_preferences.md を参照してください。\n\n";
+
+  if (a.start === 'work') {
+    const typeLabel = { kikaku:"企画書・提案資料", shooting:"撮影指示書", event:"イベント設計・演出案", other:"プレゼン資料" }[a.work_type] || "資料";
+    const audLabel  = { exec:"経営陣・支配人向け", external:"外部スタッフ（カメラマン等）向け", partner:"外部パートナー・取引先向け", team:"社内チーム向け" }[a.work_audience] || "";
+    let p = base;
+    p += `## タスク：${typeLabel}の作成\n\n`;
+    p += `- 対象：${audLabel}\n`;
+    p += `- テーマ：${a.work_theme || "（未入力）"}\n`;
+    p += `- 強調ポイント：${a.work_emphasis || "指定なし"}\n`;
+    p += `- 出力サイズ：${a.work_size || "指定なし"}\n`;
+    p += `- 枚数：${a.work_pages || "指定なし"}\n`;
+    p += `\n【出力形式】Keynoteで編集できる .pptx で出力してください。\n`;
+    if (a.work_audience === "exec") p += `\n経営陣が響くキーワード（売上・収益性・話題性・ブランド価値・数値）を必ず含めること。`;
+    if (a.work_type === "shooting") p += `\nsettings/shooting_brief_style_guide.md も参照して、撮影指示書のフォーマットに従うこと。`;
+    return p;
+  }
+  if (a.start === 'papa') {
+    const typeLabel = { ig:"Instagram投稿文", podcast:"Podcast台本・ネタ", strategy:"フォロワー増加戦略", idea:"イラストアイデア出し" }[a.papa_type] || "";
+    let p = base;
+    p += `## タスク：パパドルチ — ${typeLabel}\n\n`;
+    p += `- シーズン：${a.papa_season || "指定なし"}\n`;
+    p += `- テーマ：${a.papa_theme || "（未入力）"}\n`;
+    p += `- パターン数：${a.papa_count || "指定なし"}\n`;
+    p += `- 文字数：${a.papa_length || "制限なし"}\n`;
+    p += `\nブランド情報：@papadolci（ゆるかわ・キャラクター系・イタリアのケーキ屋世界観）\n`;
+    if (a.papa_type === "ig") p += `\nハッシュタグ（#papadolci 含む）を最後に付けること。`;
+    if (a.papa_type === "strategy") p += `\n現状：Instagram @papadolci フォロワー約560人・週2投稿。抽象論禁止・すぐ実行できる施策のみ。週次アクションプランで出すこと。`;
+    return p;
+  }
+  if (a.start === 'mail') {
+    const toLabel = { boss:"ホテル上司・経営陣", partner:"外部パートナー・取引先", casual:"カジュアルな相手" }[a.mail_to] || "";
+    let p = base;
+    p += `## タスク：メール作成\n\n`;
+    p += `- 宛先：${toLabel}\n`;
+    p += `- 目的：${a.mail_purpose || "（未入力）"}\n`;
+    p += `- トーン：${a.mail_tone || "ビジネス普通"}\n`;
+    p += `- 要点：\n${(a.mail_points || "").split("\n").map(l => "  " + l).join("\n")}\n\n`;
+    p += `【出力】件名＋本文をそのまま使える形で出力。前置き・余計な説明不要。`;
+    return p;
+  }
+  if (a.start === 'research') {
+    let p = base;
+    p += `## タスク：リサーチ＆情報まとめ\n\n`;
+    p += `- ジャンル：${a.research_cat || "（未入力）"}\n`;
+    p += `- テーマ：${a.research_theme || "（未入力）"}\n`;
+    p += `- 用途：${a.research_use || "指定なし"}\n`;
+    p += `- 深さ：${a.research_depth || "指定なし"}\n`;
+    p += `\n【出力】表形式でまとめ、出典URLも可能な範囲で付けてください。`;
+    return p;
+  }
+  return base + "タスクを実行してください。";
+}
+
+// ── Dots ──
+function updateDots() {
+  const paths = { work:6, papa:5, mail:4, research:5 };
+  const total = paths[answers.start] || 5;
+  const step  = history.length + 1;
+  const el = document.getElementById("dots");
+  el.innerHTML = "";
+  for (let i = 0; i < Math.max(total, step); i++) {
+    const d = document.createElement("div");
+    d.className = "dot" + (i < step-1 ? " done" : i === step-1 ? " active" : "");
+    el.appendChild(d);
+  }
+  document.getElementById("stepLabel").textContent = current === "confirm" ? "完了" : `${step} / ${total}`;
+  document.getElementById("backBtn").disabled = history.length === 0;
+}
+
+// ── Render ──
+function renderCard(qid, direction = "right") {
+  const q  = Q[qid];
+  const vp = document.getElementById("viewport");
+  const old = vp.querySelector(".card.active");
+  if (old) {
+    old.classList.remove("active");
+    old.classList.add(direction === "right" ? "exit-left" : "exit-right");
+    setTimeout(() => old.remove(), 350);
+  }
+
+  const card = document.createElement("div");
+  card.className = "card enter-" + direction;
+
+  if (q.type === "confirm") {
+    const prompt = buildPrompt();
+    card._prompt = prompt;
+    card.innerHTML = `
+      <div class="card-inner">
+        <div class="card-emoji">🚀</div>
+        <div class="card-q">このプロンプトをClaudeに送る</div>
+        <div class="card-sub" style="margin-bottom:16px">内容を確認して送信してください</div>
+        <div class="confirm-label">生成されたプロンプト</div>
+        <div class="prompt-preview">${escHtml(prompt)}</div>
+        <button class="send-btn" onclick="sendToChat()">✨ Claudeに送信する</button>
+        <button class="copy-btn-sm" onclick="copyPrompt()">📋 コピーして自分で貼り付ける</button>
+        <div class="restart-link" onclick="restart()">↺ 最初からやり直す</div>
+      </div>`;
+  } else if (q.type === "choice") {
+    const btns = q.choices.map(c => {
+      const sv = c.val.replace(/'/g,"\\'"), sn = c.next.replace(/'/g,"\\'");
+      return `<button class="choice-btn" onclick="chooseOption('${sv}','${sn}')"><span class="choice-icon">${c.icon}</span>${escHtml(c.label)}</button>`;
+    }).join("");
+    card.innerHTML = `
+      <div class="card-inner">
+        <div class="card-emoji">${q.emoji}</div>
+        <div class="card-q">${escHtml(q.q)}</div>
+        ${q.sub ? `<div class="card-sub">${escHtml(q.sub)}</div>` : ""}
+        <div class="choices">${btns}</div>
+      </div>`;
+  } else {
+    const storeKey = q.storeAs || qid;
+    const preVal = answers[storeKey] || "";
+    card.innerHTML = `
+      <div class="card-inner">
+        <div class="card-emoji">${q.emoji}</div>
+        <div class="card-q">${escHtml(q.q)}</div>
+        ${q.sub ? `<div class="card-sub">${escHtml(q.sub)}</div>` : ""}
+        <textarea class="text-area" id="textInput" placeholder="${escHtml(q.ph||"")}" rows="3" oninput="onTextInput()">${escHtml(preVal)}</textarea>
+        <button class="continue-btn" id="continueBtn" onclick="submitText('${qid}','${q.next}')" ${preVal?"":"disabled"}>続ける →</button>
+        ${q.optional ? `<span class="skip-link" onclick="skipText('${qid}','${q.next}')">スキップする</span>` : ""}
+      </div>`;
+  }
+
+  vp.appendChild(card);
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    card.classList.remove("enter-right", "enter-left");
+    card.classList.add("active");
+  }));
+  updateDots();
+}
+
+// ── Actions ──
+function chooseOption(val, next) {
+  if (val === "__other__") {
+    answers[current] = val;
+  } else {
+    answers[current] = val;
+  }
+  history.push({ id: current, answer: val });
+  current = next;
+  renderCard(next, "right");
+}
+function onTextInput() {
+  const ta = document.getElementById("textInput");
+  const btn = document.getElementById("continueBtn");
+  if (btn) btn.disabled = !ta.value.trim();
+}
+function submitText(key, next) {
+  const ta = document.getElementById("textInput");
+  const q  = Q[key];
+  const storeKey = q.storeAs || key;
+  const val = ta.value.trim();
+  answers[storeKey] = val;
+  history.push({ id: key, answer: val });
+  current = next;
+  renderCard(next, "right");
+}
+function skipText(key, next) {
+  const q = Q[key];
+  answers[q.storeAs || key] = "";
+  history.push({ id: key, answer: "" });
+  current = next;
+  renderCard(next, "right");
+}
+function goBack() {
+  if (history.length === 0) { showTiles(); return; }
+  const prev = history.pop();
+  current = prev.id;
+  renderCard(current, "left");
+}
+function restart() { showTiles(); history=[]; answers={}; }
+
+function sendToChat() {
+  const vp = document.getElementById("viewport");
+  const card = vp.querySelector(".card.active");
+  const prompt = (card && card._prompt) ? card._prompt : buildPrompt();
+  if (typeof sendPrompt === "function") { sendPrompt(prompt); }
+  else { copyToClipboard(prompt); alert("ClaudeのチャットにコピーしたプロンプトをClaudeに貼り付けてください。"); }
+}
+function copyPrompt() {
+  const vp = document.getElementById("viewport");
+  const card = vp.querySelector(".card.active");
+  copyToClipboard((card && card._prompt) ? card._prompt : buildPrompt());
+  const btn = document.querySelector(".copy-btn-sm");
+  if (btn) { btn.textContent = "✅ コピー完了！"; setTimeout(() => { btn.textContent = "📋 コピーして自分で貼り付ける"; }, 1500); }
+}
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).catch(() => {
+    const ta = document.createElement("textarea");
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    document.execCommand("copy"); document.body.removeChild(ta);
+  });
+}
+function escHtml(s) {
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+</script>
+</body>
+</html>
