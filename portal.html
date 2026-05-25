@@ -693,6 +693,24 @@ const Q = {
       { icon:"💡", label:"イラストのアイデアを出す",      val:"idea",     next:"papa_season" },
     ]
   },
+  sns_post_type: {
+    emoji: "📱", q: "どんな投稿？", type: "choice",
+    choices: [
+      { icon:"🎨", label:"イラスト投稿",       val:"イラスト投稿",       next:"sns_content" },
+      { icon:"📣", label:"イベントのお知らせ", val:"イベントのお知らせ", next:"sns_content" },
+      { icon:"🛍️", label:"新商品の紹介",       val:"新商品の紹介",       next:"sns_content" },
+      { icon:"✏️", label:"その他（記述）",       val:"__other__",           next:"sns_post_type_text" },
+    ]
+  },
+  sns_post_type_text: {
+    emoji: "📱", q: "どんな投稿か教えて", type: "text", storeAs: "sns_post_type",
+    ph: "例：コラボ告知 / キャンペーン / 日常投稿", next: "sns_content"
+  },
+  sns_content: {
+    emoji: "✏️", q: "内容を教えて",
+    sub: "例：マリトッツォを食べるイヌのイラスト / 6月のポップアップ出展 / 新作ステッカー",
+    type: "text", ph: "ここに入力...", next: "papa_count"
+  },
   papa_season: {
     emoji: "📅", q: "いつ向けのコンテンツ？", type: "choice",
     choices: [
@@ -731,9 +749,10 @@ const Q = {
   papa_length: {
     emoji: "📏", q: "文字数の目安は？", type: "choice",
     choices: [
-      { icon:"💬", label:"短め（140字以内）",  val:"140字以内", next:"confirm" },
-      { icon:"📝", label:"普通（200〜300字）", val:"200〜300字", next:"confirm" },
-      { icon:"📖", label:"制限なし",            val:"制限なし",  next:"confirm" },
+      { icon:"✨", label:"超短め（20〜40字）",  val:"20〜40字",  next:"confirm" },
+      { icon:"💬", label:"短め（140字以内）",   val:"140字以内", next:"confirm" },
+      { icon:"📝", label:"普通（200〜300字）",  val:"200〜300字", next:"confirm" },
+      { icon:"📖", label:"制限なし",             val:"制限なし",  next:"confirm" },
     ]
   },
 
@@ -837,7 +856,7 @@ function startFlow(type) {
     current = 'mail_to'; renderCard('mail_to', 'right');
   } else if (type === 'sns') {
     answers.start = 'papa'; answers.papa_type = 'ig';
-    current = 'papa_season'; renderCard('papa_season', 'right');
+    current = 'sns_post_type'; renderCard('sns_post_type', 'right');
   } else if (type === 'idea') {
     answers.start = 'papa'; answers.papa_type = 'idea';
     current = 'papa_season'; renderCard('papa_season', 'right');
@@ -877,12 +896,14 @@ function buildPrompt() {
     const typeLabel = { ig:"Instagram投稿文", podcast:"Podcast台本・ネタ", strategy:"フォロワー増加戦略", idea:"イラストアイデア出し" }[a.papa_type] || "";
     let p = base;
     p += `## タスク：パパドルチ — ${typeLabel}\n\n`;
-    p += `- シーズン：${a.papa_season || "指定なし"}\n`;
-    p += `- テーマ：${a.papa_theme || "（未入力）"}\n`;
+    if (a.sns_post_type) p += `- 投稿種別：${a.sns_post_type}\n`;
+    if (a.sns_content)   p += `- 内容：${a.sns_content}\n`;
+    if (a.papa_season)   p += `- シーズン：${a.papa_season}\n`;
+    if (a.papa_theme)    p += `- テーマ：${a.papa_theme}\n`;
     p += `- パターン数：${a.papa_count || "指定なし"}\n`;
     p += `- 文字数：${a.papa_length || "制限なし"}\n`;
     p += `\nブランド情報：@papadolci（ゆるかわ・キャラクター系・イタリアのケーキ屋世界観）\n`;
-    if (a.papa_type === "ig") p += `\nハッシュタグ（#papadolci 含む）を最後に付けること。`;
+    if (a.papa_type === "ig") p += `\nハッシュタグ（#papadolci 含む）を最後に付けること。\n【出力形式】投稿文とハッシュタグだけをそのままコピペできる形で出力。前置き・説明・余計なコメント一切不要。`;
     if (a.papa_type === "strategy") p += `\n現状：Instagram @papadolci フォロワー約560人・週2投稿。抽象論禁止・すぐ実行できる施策のみ。週次アクションプランで出すこと。`;
     return p;
   }
