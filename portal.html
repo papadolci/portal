@@ -145,6 +145,25 @@ body {
 .wide-tile-sub { font-size: 11px; color: #bbb; font-weight: 500; }
 .tile-copied { font-size: 10px; color: #16a34a; font-weight: 700; display: none; margin-left: auto; }
 
+.today-tile {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #eee;
+  transition: all 0.15s;
+}
+.today-tile:hover { border-color: #e05580; box-shadow: 0 4px 12px rgba(224,85,128,0.08); }
+.today-tile:active { transform: scale(0.98); }
+.today-tile-left { display: flex; align-items: center; gap: 16px; }
+.today-tile-icon { font-size: 24px; flex-shrink: 0; }
+.today-tile-title { font-size: 13px; font-weight: 700; color: #111; margin-bottom: 3px; }
+.today-tile-sub { font-size: 11px; color: #bbb; font-weight: 500; }
+.today-tile-arrow { font-size: 16px; color: #e05580; font-weight: 700; flex-shrink: 0; }
+
 /* ── Flow view ── */
 .flow-wrap {
   flex: 1;
@@ -424,6 +443,19 @@ body {
   <!-- タイルグリッド -->
   <div id="tile-section">
     <div class="home-section">
+      <div class="cat-label">今日のミッション</div>
+      <div class="today-tile" onclick="startFlow('today')">
+        <div class="today-tile-left">
+          <div class="today-tile-icon">🎯</div>
+          <div>
+            <div class="today-tile-title">今日は何をするべき？</div>
+            <div class="today-tile-sub">40's Visionに向けて今日やることを提案してもらう</div>
+          </div>
+        </div>
+        <div class="today-tile-arrow">→</div>
+      </div>
+
+      <div style="height:16px"></div>
       <div class="cat-label">制作</div>
       <div class="grid3">
         <div class="tile" onclick="startFlow('shooting')">
@@ -904,6 +936,9 @@ function startFlow(type) {
   } else if (type === 'research') {
     answers.start = 'research';
     current = 'research_cat'; renderCard('research_cat', 'right');
+  } else if (type === 'today') {
+    answers.start = 'today';
+    current = 'confirm'; renderCard('confirm', 'right');
   }
 }
 
@@ -918,6 +953,24 @@ function buildPrompt() {
   const a = answers;
   const base = "settings/about_me.md・settings/working_preferences.md を参照してください。\n\n";
 
+  if (a.start === 'today') {
+    const today = new Date();
+    const dateStr = `${today.getFullYear()}年${today.getMonth()+1}月${today.getDate()}日`;
+    return base +
+`## タスク：今日やるべきことの提案
+
+今日は${dateStr}です。
+
+settings/about_me.md に記載されている「40's Vision」と「35→40歳ロードマップ」を参照して、パパドルチの活動において**今日この1日でやるべきこと、たった1つ**を提案してください。
+
+### 条件
+- メズム東京の仕事は一切不要
+- パパドルチ（イラスト・SNS・グッズ・店舗構想）に関することのみ
+- 今日15〜30分あればできるレベルの具体的なアクション
+- 理由は一言だけ
+
+【出力形式】アクション1行＋理由1行。前置き不要。`;
+  }
   if (a.start === 'work') {
     const typeLabel = { kikaku:"企画書・提案資料", shooting:"撮影指示書", event:"イベント設計・演出案", other:"プレゼン資料" }[a.work_type] || "資料";
     const audLabel  = { exec:"経営陣・支配人向け", external:"外部スタッフ（カメラマン等）向け", partner:"外部パートナー・取引先向け", team:"社内チーム向け" }[a.work_audience] || "";
@@ -1112,12 +1165,12 @@ function sendToChat() {
   const card = vp.querySelector(".card.active");
   const prompt = (card && card._prompt) ? card._prompt : buildPrompt();
   copyToClipboard(prompt);
+  window.location.href = 'claude://';
   const btn = document.querySelector(".send-btn");
-  if (btn) { btn.textContent = "✅ コピー完了！Claudeを開きます"; }
-  setTimeout(() => {
-    window.open('https://claude.ai/new', '_blank');
-    if (btn) { btn.innerHTML = "✨ Claudeに送信する"; }
-  }, 600);
+  if (btn) {
+    btn.textContent = "✅ コピー完了！Claudeアプリを起動中";
+    setTimeout(() => { btn.innerHTML = "✨ Claudeに送信する"; }, 2000);
+  }
 }
 function copyPrompt() {
   const vp = document.getElementById("viewport");
