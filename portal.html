@@ -427,10 +427,10 @@ body {
           <div class="tile-title">SNS投稿文</div>
           <div class="tile-sub">投稿前に</div>
         </div>
-        <div class="tile" onclick="startFlow('idea')">
-          <div class="tile-icon">🎨</div>
-          <div class="tile-title">ネタ出し</div>
-          <div class="tile-sub">アイデアが欲しい時</div>
+        <div class="tile" onclick="startFlow('podcast')">
+          <div class="tile-icon">🎙️</div>
+          <div class="tile-title">Podcast台本</div>
+          <div class="tile-sub">収録前に</div>
         </div>
         <div class="tile" onclick="startFlow('research')">
           <div class="tile-icon">🔍</div>
@@ -830,6 +830,29 @@ const Q = {
     type: "text", ph: "ここに入力...", next: "confirm"
   },
 
+  podcast_theme: {
+    emoji: "🎙️", q: "今回のテーマは？",
+    sub: "例：マリトッツォの歴史 / イタリアのカフェ文化 / デザフェス出展レポ",
+    type: "text", ph: "ここに入力...", next: "podcast_length"
+  },
+  podcast_length: {
+    emoji: "⏱️", q: "収録時間の目安は？", type: "choice",
+    choices: [
+      { icon:"⚡", label:"短め（5分以内）",   val:"5分以内",  next:"podcast_style" },
+      { icon:"🎧", label:"普通（10〜15分）",   val:"10〜15分", next:"podcast_style" },
+      { icon:"📻", label:"長め（20分以上）",   val:"20分以上", next:"podcast_style" },
+      { icon:"🔓", label:"おまかせ",           val:"おまかせ", next:"podcast_style" },
+    ]
+  },
+  podcast_style: {
+    emoji: "🎨", q: "トーンは？", type: "choice",
+    choices: [
+      { icon:"😊", label:"ゆるく雑談っぽく",   val:"ゆるく雑談っぽく",   next:"confirm" },
+      { icon:"📖", label:"情報・解説メイン",    val:"情報・解説メイン",   next:"confirm" },
+      { icon:"✨", label:"ストーリー仕立て",    val:"ストーリー仕立て",   next:"confirm" },
+    ]
+  },
+
   confirm: { type: "confirm" }
 };
 
@@ -857,9 +880,9 @@ function startFlow(type) {
   } else if (type === 'sns') {
     answers.start = 'papa'; answers.papa_type = 'ig';
     current = 'sns_post_type'; renderCard('sns_post_type', 'right');
-  } else if (type === 'idea') {
-    answers.start = 'papa'; answers.papa_type = 'idea';
-    current = 'papa_season'; renderCard('papa_season', 'right');
+  } else if (type === 'podcast') {
+    answers.start = 'podcast';
+    current = 'podcast_theme'; renderCard('podcast_theme', 'right');
   } else if (type === 'research') {
     answers.start = 'research';
     current = 'research_cat'; renderCard('research_cat', 'right');
@@ -905,6 +928,21 @@ function buildPrompt() {
     p += `\nブランド情報：@papadolci（ゆるかわ・キャラクター系・イタリアのケーキ屋世界観）\n`;
     if (a.papa_type === "ig") p += `\nハッシュタグ（#papadolci 含む）を最後に付けること。\n【出力形式】投稿文とハッシュタグだけをそのままコピペできる形で出力。前置き・説明・余計なコメント一切不要。`;
     if (a.papa_type === "strategy") p += `\n現状：Instagram @papadolci フォロワー約560人・週2投稿。抽象論禁止・すぐ実行できる施策のみ。週次アクションプランで出すこと。`;
+    return p;
+  }
+  if (a.start === 'podcast') {
+    let p = base;
+    p += `## タスク：パパドルチ Podcast台本作成\n\n`;
+    p += `- テーマ：${a.podcast_theme || "（未入力）"}\n`;
+    p += `- 収録時間：${a.podcast_length || "おまかせ"}\n`;
+    p += `- トーン：${a.podcast_style || "おまかせ"}\n`;
+    p += `\n## 番組情報\n`;
+    p += `番組名：ラジオドルチ\n`;
+    p += `概要：イタリアのケーキ屋さんをテーマにした絵を描くイラストレーター・パパドルチが、毎週ひとつのスイーツを紹介しながら日常やイラスト制作の舞台裏についておしゃべりするトークプログラム\n`;
+    p += `締め言葉：「またラジオドルチでね、チャオ！」\n`;
+    p += `\n## 指示\n`;
+    p += `テーマに関して実際に調査・リサーチした上で、具体的な固有名詞・数字・エピソードを盛り込んだ台本を作成すること。抽象的な「※ここに内容を入れる」などのプレースホルダー禁止。\n`;
+    p += `\n【出力形式】イントロ→オープニングトーク→メインテーマ→エンディングの構成で、各セクションに目安時間を記載。そのまま読めるトーク台本として出力。前置き・説明不要。`;
     return p;
   }
   if (a.start === 'mail') {
