@@ -177,7 +177,8 @@ body {
   align-items: flex-start;
   justify-content: center;
   width: 100%;
-  min-height: 420px;
+  min-height: 100px;
+  transition: height 0.35s cubic-bezier(.4,0,.2,1);
 }
 .flow-nav {
   width: 100%;
@@ -385,7 +386,7 @@ body {
 <body>
 
 <div class="nav">
-  <div class="nav-logo"><span class="nav-star">✦</span> KOICHAN PORTAL</div>
+  <div class="nav-logo" onclick="showPage('home', document.querySelectorAll('.nav-link')[0])" style="cursor:pointer;"><span class="nav-star">✦</span> KOICHAN PORTAL</div>
   <div class="nav-links">
     <div class="nav-link active" onclick="showPage('home', this)">Home</div>
     <div class="nav-link" onclick="showPage('about', this)">About</div>
@@ -437,7 +438,7 @@ body {
         </div>
         <div class="tile" onclick="startFlow('mail')">
           <div class="tile-icon">✉️</div>
-          <div class="tile-title">メール文</div>
+          <div class="tile-title">メール文章</div>
           <div class="tile-sub">メール作成時に</div>
         </div>
       </div>
@@ -597,6 +598,7 @@ function showPage(name, el) {
   document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
   if (el) el.classList.add('active');
+  if (name === 'home') { showTiles(); history = []; answers = {}; }
 }
 
 // ── Countdown to 40 ──
@@ -997,7 +999,7 @@ function updateDots() {
     d.className = "dot" + (i < step-1 ? " done" : i === step-1 ? " active" : "");
     el.appendChild(d);
   }
-  document.getElementById("stepLabel").textContent = current === "confirm" ? "完了" : `${step} / ${total}`;
+  document.getElementById("stepLabel").textContent = current === "confirm" ? "" : `${step} / ${total}`;
   document.getElementById("backBtn").disabled = history.length === 0;
 }
 
@@ -1026,7 +1028,7 @@ function renderCard(qid, direction = "right") {
         <div class="confirm-label">生成されたプロンプト</div>
         <div class="prompt-preview">${escHtml(prompt)}</div>
         <button class="send-btn" onclick="sendToChat()">✨ Claudeに送信する</button>
-        <button class="copy-btn-sm" onclick="copyPrompt()">📋 コピーして自分で貼り付ける</button>
+        <button class="copy-btn-sm" onclick="copyPrompt()">📋 コピーする</button>
         <div class="restart-link" onclick="restart()">↺ 最初からやり直す</div>
       </div>`;
   } else if (q.type === "choice") {
@@ -1059,6 +1061,7 @@ function renderCard(qid, direction = "right") {
   requestAnimationFrame(() => requestAnimationFrame(() => {
     card.classList.remove("enter-right", "enter-left");
     card.classList.add("active");
+    vp.style.height = card.offsetHeight + "px";
   }));
   updateDots();
 }
@@ -1108,15 +1111,31 @@ function sendToChat() {
   const vp = document.getElementById("viewport");
   const card = vp.querySelector(".card.active");
   const prompt = (card && card._prompt) ? card._prompt : buildPrompt();
-  if (typeof sendPrompt === "function") { sendPrompt(prompt); }
-  else { copyToClipboard(prompt); alert("ClaudeのチャットにコピーしたプロンプトをClaudeに貼り付けてください。"); }
+  copyToClipboard(prompt);
+  const btn = document.querySelector(".send-btn");
+  if (btn) { btn.textContent = "✅ コピー完了！Claudeを開きます"; }
+  setTimeout(() => {
+    window.open('https://claude.ai/new', '_blank');
+    if (btn) { btn.innerHTML = "✨ Claudeに送信する"; }
+  }, 600);
 }
 function copyPrompt() {
   const vp = document.getElementById("viewport");
   const card = vp.querySelector(".card.active");
   copyToClipboard((card && card._prompt) ? card._prompt : buildPrompt());
   const btn = document.querySelector(".copy-btn-sm");
-  if (btn) { btn.textContent = "✅ コピー完了！"; setTimeout(() => { btn.textContent = "📋 コピーして自分で貼り付ける"; }, 1500); }
+  if (btn) { btn.textContent = "✅ コピー完了！"; setTimeout(() => { btn.textContent = "📋 コピーする"; }, 1500); }
+}
+function copyAndOpen() {
+  const vp = document.getElementById("viewport");
+  const card = vp.querySelector(".card.active");
+  copyToClipboard((card && card._prompt) ? card._prompt : buildPrompt());
+  const btn = document.querySelector(".copy-btn-sm");
+  if (btn) { btn.textContent = "✅ コピー完了！Claudeを開きます"; }
+  setTimeout(() => {
+    window.open('https://claude.ai/new', '_blank');
+    if (btn) { btn.textContent = "📋 コピーしてClaudeを開く"; }
+  }, 600);
 }
 function copyToClipboard(text) {
   navigator.clipboard.writeText(text).catch(() => {
